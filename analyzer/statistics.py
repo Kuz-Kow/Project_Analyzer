@@ -2,15 +2,8 @@ import logging
 from logger.logger_config import set_logger
 from typing import (Iterator, TypedDict)
 from pathlib import Path
-from models.models import FileInfo
 from collections import defaultdict
-
-class Statistics_dict(TypedDict):
-    Files : int
-    Directories : int
-    Extensions : defaultdict[str,int]
-    Total_size : int
-    Largest_files : dict[int, str]
+from models.models import Project_info, FileInfo
 
 
 set_logger()
@@ -27,34 +20,28 @@ class Generator:
         return self.value
 
 
-def dir_statistics(scanner : Iterator[Path] ) -> dict:
+def dir_statistics(scanner : Iterator[FileInfo] ) -> dict:
     logger.info("Starting analysis")
     
     gen_scanner = Generator(scanner)
     
-    analyzed_statistics : Statistics_dict = {
-        "Files" : 0,
-        "Directories" : 0,
-        "Extensions" : defaultdict(int),
-        "Total_size" : 0,
-        "Largest_files" : {}        
-    }
+    analyzed_statistics = Project_info(Extensions= defaultdict(list))
     
     for file in gen_scanner:
         if file.is_file():
-            analyzed_statistics["Files"] += 1
-            analyzed_statistics["Total_size"] += file.stat().st_size
-            analyzed_statistics["Extensions"][file.suffix] += 1
-            if len(analyzed_statistics["Largest_files"].keys()) > 1:
-                for value in analyzed_statistics["Largest_files"]:
-                    if int(value) < file.stat().st_size:
-                        del  analyzed_statistics["Largest_files"][value]
-                        analyzed_statistics["Largest_files"][file.stat().st_size] = file.name
+            analyzed_statistics.Files += 1
+            analyzed_statistics.Total_size += file.stat().st_size
+            analyzed_statistics.Extensions[file.suffix] += 1
+            if len(analyzed_statistics.Largest_files.keys()) > 1:
+                for value in sorted(analyzed_statistics.Largest_files):
+                    if int(value) < file.size:
+                        del  analyzed_statistics.Largest_files[value]
+                        analyzed_statistics.Largest_files[file.size] = file.file_path.name
                         break
             else:
-                analyzed_statistics["Largest_files"][file.stat().st_size] = file.name
+                analyzed_statistics.Largest_files[file.size] = file.file_path.name
         
-    analyzed_statistics["Directories"] = gen_scanner.value
+    analyzed_statistics.Directories = gen_scanner.value
     
     logger.info("Analyze finished")
     
