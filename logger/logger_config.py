@@ -8,7 +8,7 @@ def set_logger() -> None:
     cls_formatter = logging.Formatter(fmt= "{name} - {levelname}: {message}", style="{")
     
     
-    file_handler = RotatingFileHandler(filename= "reports/analyzer.logs", mode= "a", maxBytes="1000",backupCount=10,encoding="utf-8")
+    file_handler = RotatingFileHandler(filename= "reports/analyzer.logs", mode= "a", maxBytes=1000,backupCount=10,encoding="utf-8")
     file_handler.setFormatter(file_formatter)
     file_handler.setLevel("INFO")
     

@@ -12,10 +12,9 @@ logger = logging.getLogger(__name__)
 def dir_scanner(dirpath: Path) -> Iterator[Path]:
     if dirpath.is_dir():
         directories = 0
-        for obj in dirpath.rglob():
+        for obj in dirpath.rglob("**"):
             if obj.is_dir():
                 directories += 1
-                dir_scanner(obj)
             yield obj
         return directories
     else:
