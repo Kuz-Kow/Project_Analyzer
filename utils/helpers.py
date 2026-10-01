@@ -2,14 +2,17 @@ import json
 from pathlib import Path
 import logging
 from analyze_models.data_models import Project_info
-from config.setting import DEFAULT_OUTPUT_FILE_JSON, DEFAULT_OUTPUT_FILE_MARKDOWN
+from config.setting import DEFAULT_OUTPUT_FILE_JSON, DEFAULT_OUTPUT_FILE_MARKDOWN, DEFAULT_OUTPUT_DIR
 from logger.logger_config import set_logger
 
 set_logger()
 
 logger = logging.getLogger(__name__)
 
-def create_json_report(report : Project_info) -> None:
+def create_json_report(report : Project_info, filename : str = DEFAULT_OUTPUT_FILE_JSON) -> None:
+    
+    file : Path = Path(DEFAULT_OUTPUT_DIR / Path(filename))
+    
     statistic_dict = {
         "files" : report.Files,
         "directories" : report.Directories,
@@ -18,14 +21,17 @@ def create_json_report(report : Project_info) -> None:
         "largest_files" : report.Largest_files
     }
     
-    with DEFAULT_OUTPUT_FILE_JSON.open("w") as file:
-        json.dump(statistic_dict, file, indent = 2)
-        logger.info("Created json report in in path: %s", DEFAULT_OUTPUT_FILE_JSON.resolve())
+    with file.open("w") as save:
+        json.dump(statistic_dict, save, indent = 2)
+        logger.info("Created json report in in path: %s", file.resolve())
     
 
 
-def create_markdown_report(report : Project_info) -> None:
-    with DEFAULT_OUTPUT_FILE_MARKDOWN.open("w") as file:
+def create_markdown_report(report : Project_info, filename : str = DEFAULT_OUTPUT_FILE_MARKDOWN) -> None:
+    
+    file = Path(DEFAULT_OUTPUT_DIR / Path(filename))
+    
+    with file.open("w") as file:
         file.write("## Analyze result\n")
         file.write(f"### Files: {report.Files}\n")
         file.write(f"### Directories: {report.Directories}\n")

@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import(Iterator)
-from models.models import FileInfo
+from analyze_models.data_models import FileInfo
 from logger.logger_config import set_logger
 
 
@@ -16,6 +16,7 @@ def dir_scanner(dirpath: Path) -> Iterator[FileInfo] | int:
         for obj in dirpath.rglob("**"):
             if obj.is_dir():
                 directories += 1
+                continue
             file_inf = FileInfo(file_path= obj,
                                 suffix=obj.suffix,
                                 size = obj.stat().st_size)

@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 from typing import (Iterable)
+from analyze_models.data_models import FileInfo
 from collections import defaultdict
 
 
@@ -17,13 +18,13 @@ def find_duplicate(scanner : Iterable[Path]) -> dict:
     groups = 0
     
     for file in scanner:
-        if file.is_file():
-            with file.open("r", encoding='latin-1') as file:
+        if isinstance(file, FileInfo):
+            with file.file_path.open("r", encoding='latin-1') as file:
                 hashed_files[hash(tuple(file.readlines()))].append(file)
     
-    for value in hashed_files.values():
-        if len(value) > 1:
-            duplicate_dict[f"Group{groups+1}"] = value
+    for values in hashed_files.values():
+        if len(values) > 1:
+            duplicate_dict[f"Group{groups+1}"] = values
     
     return duplicate_dict
     

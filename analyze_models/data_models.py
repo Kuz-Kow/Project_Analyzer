@@ -17,6 +17,5 @@ class Project_info:
     Total_size : int = 0
     Largest_files : dict = field(default_factory=dict)
     
-    def __str__(self):
-        ...
+
         

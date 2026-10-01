@@ -1,58 +1,45 @@
-from typing import NoReturn
-import argparse
-from analyzer.scanner import dir_scanner as scanner
-from analyzer.statistics import dir_statistics as statistics
-from analyzer.duplicates import find_duplicate
+from typing import NoReturn, Callable
 from pathlib import Path
-from config.setting import APP_NAME, VERSION, DEFAULT_MIN_SIZE
+import argparse
+from utils.processing import process_args
+from config.setting import APP_NAME, VERSION, ACTIONS
 
-ACTIONS = {
-    "analyze" : {"" :},
-    "large" : {args : {name_or_flags : "--min-size",
-                requaried : False,
-                default : DEFAULT_MIN_SIZE,
-                },
-               help : {""}},
-    "duolicates" : [],
-    "extensions" : [],
-    "report" : [{name_or_flags : "--output",
-                 requaried : False,
-                 default : None}]
-}
 
 def main() -> None:
-    set_parser()
-        
+    """
+    Main function which gets parser and then get's args from parser and sends
+    them to process_args function
+    """
+    parser = set_parser()
+    args = vars(parser.parse_args())
 
-def set_parser():
-    parser = argparse.ArgumentParser(prog= APP_NAME,
-                                             description="CLI application to analyze your project",)
-    
-    subpareser = parser.add_subparsers(required=True)
-    
-    for name, arguments in ACTIONS:
-        p = subpareser.add_parser(name, )
-        
-    
-    subpareser = parser.add_subparsers(required=True)
-    analyze_subparser = subpareser.add_parser("analyze")
-    
-    large_subparser = subpareser.add_parser("large")
-    large_subparser.add_argument()
-    
-    subparser_names = []
-    
-    for action in parser._actions:
-        if isinstance(action, argparse._SubParsersAction):
-            subparser_names = list(action.choices.keys()) 
-            break
-    
-    for name in subparser_names:
-        
-        
-    
-    analyze_subparser.add_argument("dirpath", type= Path)
-    
+    process_args(**args)
+
+
+def set_parser() -> argparse.ArgumentParser:
+    """
+    Function which creates parser from template ACTION
+    """
+
+    parser = argparse.ArgumentParser(
+        prog=APP_NAME + " " + VERSION,
+        description="CLI application to analyze your project",
+    )
+
+    subpareser = parser.add_subparsers(
+        required=True, dest="command", help="command to analyze your project"
+    )
+
+    for name, arguments in ACTIONS.items():
+        p = subpareser.add_parser(name, help=arguments["help"])
+        for argument in arguments["args"]:
+            p.add_argument(argument.pop("name_or_flags"), **argument)
+
+        p.add_argument("dir_path", help="Path to the project", type=Path)
+        p.set_defaults(func=arguments["default_func"])
+
+    return parser
+
 
 if __name__ == "__main__":
-     main()
+    main()

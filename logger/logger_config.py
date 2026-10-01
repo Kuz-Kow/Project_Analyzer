@@ -12,7 +12,9 @@ def set_logger() -> None:
     file_handler = RotatingFileHandler(filename= DEFAULT_LOG_FILE, mode= "a", maxBytes=1000,backupCount=10,encoding="utf-8")
     file_handler.setFormatter(file_formatter)
     file_handler.setLevel("INFO")
+    logger.addHandler(file_handler)
     
     cls_handler = logging.StreamHandler()
     cls_handler.setFormatter(cls_formatter)
     cls_handler.setLevel("ERROR")
+    logger.addHandler(cls_handler)

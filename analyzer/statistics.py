@@ -3,7 +3,7 @@ from logger.logger_config import set_logger
 from typing import (Iterator, TypedDict)
 from pathlib import Path
 from collections import defaultdict
-from models.models import Project_info, FileInfo
+from analyze_models.data_models import Project_info, FileInfo
 
 
 set_logger()
@@ -20,17 +20,17 @@ class Generator:
         return self.value
 
 
-def dir_statistics(scanner : Iterator[FileInfo] ) -> dict:
+def analyze(scanner : Iterator[FileInfo] ) -> dict:
     logger.info("Starting analysis")
     
     gen_scanner = Generator(scanner)
     
-    analyzed_statistics = Project_info(Extensions= defaultdict(list))
+    analyzed_statistics = Project_info(Extensions= defaultdict(int))
     
     for file in gen_scanner:
-        if file.is_file():
+        if isinstance(file, FileInfo):
             analyzed_statistics.Files += 1
-            analyzed_statistics.Total_size += file.stat().st_size
+            analyzed_statistics.Total_size += file.size
             analyzed_statistics.Extensions[file.suffix] += 1
             if len(analyzed_statistics.Largest_files.keys()) > 1:
                 for value in sorted(analyzed_statistics.Largest_files):
