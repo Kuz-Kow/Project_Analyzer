@@ -8,7 +8,13 @@ def set_logger() -> None:
     Sets logger to write INFO messages and above to a file and print WARNING message and above to console
     """
 
+
+
     logger = logging.getLogger()
+    
+    if logger.handlers:
+        return
+    
     logger.setLevel("INFO")
     file_formatter = logging.Formatter(
         fmt="{asctime} - {name} - {levelname}: {message}",

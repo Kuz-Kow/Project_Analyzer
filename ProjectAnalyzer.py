@@ -1,9 +1,15 @@
 from typing import NoReturn, Callable
 from pathlib import Path
 import argparse
+import logging
+from logger.logger_config import set_logger
 from utils.processing import process_args
 from config.setting import APP_NAME, VERSION, ACTIONS
 
+
+set_logger()
+
+logger = logging.getLogger(__name__)
 
 def main() -> None:
     """
@@ -13,7 +19,10 @@ def main() -> None:
     parser = set_parser()
     args = vars(parser.parse_args())
 
-    process_args(**args)
+    try:
+        process_args(**args)
+    except Exception:
+        logger.exception("Got an exception",exc_info= True)
 
 
 def set_parser() -> argparse.ArgumentParser:

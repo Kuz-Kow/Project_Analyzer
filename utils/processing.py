@@ -3,10 +3,15 @@ import logging
 from analyze_models.data_models import Project_info, FileInfo
 from analyzer.scanner import dir_scanner
 from config.setting import SUPPORTED_REPORT_FORMATS
+from logger.logger_config import set_logger
 import functools
+import logging
 from utils.helpers import create_json_report, create_markdown_report
 from typing import Iterator, Callable
 
+set_logger()
+
+logger = logging.getLogger(__name__)
 
 def process_args(*args, **kwargs) -> None:
     """
@@ -19,6 +24,7 @@ def process_args(*args, **kwargs) -> None:
 
     match command:
         case "analyze":
+            logger.info("Started analysis")
             result: Project_info = func(data_gen)
             print(f"Files: {result.Files}")
             print(f"Directories: {result.Directories}")
@@ -29,10 +35,12 @@ def process_args(*args, **kwargs) -> None:
             print(f"Larges file:")
             for size, name in result.Largest_files.items():
                 print(f"   {name} : {size}")
+            logger.info("Ended analysis")
 
         case "large":
             large_result: Iterator[FileInfo] = func(data_gen, *args, **kwargs)
             for large_file in large_result:
+                logger.info("Found large file: %s size: %s",large_file.file_path.name, large_file.size)
                 print(f"{large_file.file_path.name} : {large_file.size} ")
 
         case "extensions":
@@ -49,11 +57,14 @@ def process_args(*args, **kwargs) -> None:
                     create_json_report(report_result, file)
                 else:
                     create_markdown_report(report_result, file)
+                
+                logger.info("Created report")
 
         case "duplicates":
             duplicates_result: dict[str, list[str]] = func(data_gen)
             for group, values in duplicates_result.items():
                 print(f"{group.capitalize()}:")
+                logger.info("Found duplicates: %s", values)
                 for value in values:
                     print(f"   {value}")
 
