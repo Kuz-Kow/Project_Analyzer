@@ -31,7 +31,7 @@ def set_parser() -> argparse.ArgumentParser:
     )
 
     for name, arguments in ACTIONS.items():
-        p = subpareser.add_parser(name, help=arguments["help"])
+        p: argparse.ArgumentParser = subpareser.add_parser(name, help=arguments["help"])
         for argument in arguments["args"]:
             p.add_argument(argument.pop("name_or_flags"), **argument)
 

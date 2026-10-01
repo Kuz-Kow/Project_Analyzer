@@ -5,17 +5,21 @@ from analyzer.scanner import dir_scanner
 from config.setting import SUPPORTED_REPORT_FORMATS
 import functools
 from utils.helpers import create_json_report, create_markdown_report
-from typing import Iterator
+from typing import Iterator, Callable
 
 
-def process_args(*args, **kwargs):
-    data_gen = dir_scanner(kwargs.pop("dir_path"))
-    func = kwargs.pop("func")
-    command = kwargs.pop("command")
-    
+def process_args(*args, **kwargs) -> None:
+    """
+    Function to process all the args from parser and do needed operation
+    """
+
+    data_gen: Iterator[FileInfo] | int = dir_scanner(kwargs.pop("dir_path"))
+    func: Callable = kwargs.pop("func")
+    command: str = kwargs.pop("command")
+
     match command:
         case "analyze":
-            result : Project_info = func(data_gen)
+            result: Project_info = func(data_gen)
             print(f"Files: {result.Files}")
             print(f"Directories: {result.Directories}")
             print(f"Extensions: ")
@@ -25,42 +29,35 @@ def process_args(*args, **kwargs):
             print(f"Larges file:")
             for size, name in result.Largest_files.items():
                 print(f"   {name} : {size}")
-            
+
         case "large":
-            result : Iterator[FileInfo] = func(data_gen, *args, **kwargs)
-            for file in result:
-                print(f"{file.file_path.name} : {file.size} ")
-                
-        case "extensions" :
-            result : Iterator[FileInfo] = func(*args, **kwargs)
-            for extension, value in result.Extensions.items():
-                    print(f"  {extension} : {value}")
-                    
-        case "report" :
-            file = kwargs.pop("output_file")
-            _ , suffix = file.split(".")
+            large_result: Iterator[FileInfo] = func(data_gen, *args, **kwargs)
+            for large_file in large_result:
+                print(f"{large_file.file_path.name} : {large_file.size} ")
+
+        case "extensions":
+            extensions_result: Project_info = func(*args, **kwargs)
+            for extension, value in extensions_result.Extensions.items():
+                print(f"  {extension} : {value}")
+
+        case "report":
+            file: str = kwargs.pop("output_file")
+            _, suffix = file.split(".")
             if suffix in SUPPORTED_REPORT_FORMATS:
-                result = func(data_gen,*args, **kwargs)
+                report_result: Project_info = func(data_gen, *args, **kwargs)
                 if suffix == "json":
-                    create_json_report(result, file)
+                    create_json_report(report_result, file)
                 else:
-                    create_markdown_report(result, file)
-                    
+                    create_markdown_report(report_result, file)
+
         case "duplicates":
-            result : dict[str, list[str]] = func(data_gen)
-            for group, values in result.items():
+            duplicates_result: dict[str, list[str]] = func(data_gen)
+            for group, values in duplicates_result.items():
                 print(f"{group.capitalize()}:")
                 for value in values:
-                    print(f"   {value.name}")
-                    
+                    print(f"   {value}")
+
         case "names":
-                result : Iterator[FileInfo] = func(data_gen, *args, **kwargs)
-                for file in result:
-                    print(f"\n{file.file_path.resolve()}\n")
-            
-                                
-                    
-            
-                
-                
-    
+            names_result: Iterator[FileInfo] = func(data_gen, *args, **kwargs)
+            for named_file in names_result:
+                print(f"\n{named_file.file_path.resolve()}\n")
