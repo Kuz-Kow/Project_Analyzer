@@ -28,6 +28,7 @@ def analyze(scanner: Iterator[FileInfo]) -> Project_info:
     analyzed_statistics = Project_info(Extensions=defaultdict(int))
 
     for file in gen_scanner:
+        print(file)
         if isinstance(file, FileInfo):
             analyzed_statistics.Files += 1
             analyzed_statistics.Total_size += file.size
@@ -43,6 +44,7 @@ def analyze(scanner: Iterator[FileInfo]) -> Project_info:
             else:
                 analyzed_statistics.Largest_files[file.size] = file.file_path.name
 
+    print(gen_scanner.value)
     analyzed_statistics.Directories = gen_scanner.value
 
 

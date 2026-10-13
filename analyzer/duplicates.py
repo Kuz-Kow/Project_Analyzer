@@ -11,14 +11,13 @@ def hash_file(data: str):
     return hash(data)
 
 
-def find_duplicate(scanner: Iterable[Path]) -> dict[str, list[Path]]:
+def find_duplicate(scanner: Iterable[FileInfo]) -> dict[str, list[Path]]:
     """
     Finding duplicates of some files in project.
     Retorning groups of the same file
     """
     hashed_files = defaultdict(list)
     duplicate_dict = {}
-    groups = 0
 
     for file in scanner:
         if isinstance(file, FileInfo):
@@ -27,8 +26,8 @@ def find_duplicate(scanner: Iterable[Path]) -> dict[str, list[Path]]:
                     file.file_path.resolve()
                 )
 
-    for values in hashed_files.values():
+    for number, values in enumerate(hashed_files.values()):
         if len(values) > 1:
-            duplicate_dict[f"Group{groups+1}"] = values
+            duplicate_dict[f"Group{number + 1}"] = values
 
     return duplicate_dict
