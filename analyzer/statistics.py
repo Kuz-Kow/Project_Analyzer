@@ -28,7 +28,6 @@ def analyze(scanner: Iterator[FileInfo]) -> Project_info:
     analyzed_statistics = Project_info(Extensions=defaultdict(int))
 
     for file in gen_scanner:
-        print(file)
         if isinstance(file, FileInfo):
             analyzed_statistics.Files += 1
             analyzed_statistics.Total_size += file.size
